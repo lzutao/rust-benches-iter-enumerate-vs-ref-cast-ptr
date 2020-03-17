@@ -1,0 +1,33 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-pc-windows-msvc
+          - x86_64-pc-windows-gnu
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install nightly Rust toolchain
+      run: |
+        rustup set profile minimal
+        rustup toolchain install nightly
+        rustup default nightly
+        rustup target add ${{ matrix.target }}
+      shell: bash
+    - name: Rust Version
+      run: |
+        rustc -Vv
+        cargo -V
+      shell: bash
+    - name: Bench
+      run: cargo bench --target ${{ matrix.target }}
+      shell: bash
